@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>따땃함@lacma</title>
+<style>
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+    background: #476DB7;
+  }
+
+  body {
+    color: #F4F0E7;
+    font-family: "Apple SD Gothic Neo", "Noto Sans CJK KR", "Hiragino Sans", "PingFang SC", sans-serif;
+    font-weight: 700;
+    font-synthesis: none;
+    overflow-x: hidden;
+  }
+
+  .canvas {
+    width: 100%;
+    min-height: 100svh;
+    padding: clamp(38px, 7.4vw, 107px) clamp(20px, 10.4vw, 150px) clamp(42px, 5.4vw, 78px);
+  }
+
+  .fit-shell { width: 1120px; }
+
+  .poem {
+    width: 1120px;
+    font-size: 42px;
+    line-height: 1.38;
+    letter-spacing: -0.022em;
+    transform-origin: top left;
+  }
+
+  .stanza {
+    white-space: pre;
+    margin: 0 0 52px 0;
+  }
+
+  .stanza.quote {
+    position: relative;
+    margin-bottom: 44px;
+    padding-left: 35px;
+    color: #F3DFD7;
+    font-size: 1em;
+    line-height: 1.32;
+  }
+
+  .stanza.quote::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.08em;
+    bottom: 0.08em;
+    width: 5px;
+    border-radius: 3px;
+    background: #E7A69B;
+  }
+
+  .quote-source {
+    margin-top: 13px;
+    color: #E7A69B;
+    font-size: 0.46em;
+    line-height: 1.35;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    white-space: normal;
+  }
+
+  .quote-source a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(231, 166, 155, 0.48);
+  }
+
+  .quote-source a:hover,
+  .quote-source a:focus-visible { border-bottom-color: currentColor; }
+
+  .show-title {
+    display: block;
+    margin-top: 0;
+    color: #F4F0E7;
+    font-size: 0.9em;
+    line-height: 1.38;
+    font-weight: 700;
+    letter-spacing: -0.022em;
+  }
+
+  .wordplay-note {
+    margin-top: 6px;
+    color: rgba(244, 240, 231, 0.62);
+    font-size: 0.40em;
+    line-height: 1.22;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    white-space: normal;
+  }
+
+  .wordplay-note a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(244, 240, 231, 0.30);
+  }
+
+  .wordplay-note a:hover,
+  .wordplay-note a:focus-visible { border-bottom-color: currentColor; }
+
+  .stanza.before-quote { margin-bottom: 26px; }
+  .stanza.quote.mid-quote { margin-bottom: 28px; }
+
+  .closing {
+    margin: 4px 0 0 0;
+    white-space: pre;
+    font-size: 1em;
+    line-height: 1.39;
+  }
+
+  .signature { margin-top: 54px; }
+  .signature-rule { width: 520px; height: 4px; background: #E7A69B; }
+  .signature-text {
+    margin-top: 18px;
+    color: #E7A69B;
+    font-size: 30px;
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+
+  .mobile-poem { display: none; }
+
+  @media (max-width: 700px) {
+    .canvas { padding: 28px 20px 38px; }
+    .desktop-shell { display: none; }
+    .mobile-poem { display: block; }
+
+    .mobile-poem {
+      width: 100%;
+      font-size: clamp(19px, 5.25vw, 22px);
+      line-height: 1.44;
+      letter-spacing: -0.02em;
+    }
+
+    /* Mobile is hand-composed: the browser never invents a line break. */
+    .mobile-poem .line { display: block; white-space: nowrap; }
+    .mobile-poem .stanza { white-space: normal; margin-bottom: 32px; }
+
+    .mobile-poem .stanza.quote {
+      margin-bottom: 30px;
+      padding-left: 18px;
+      line-height: 1.39;
+    }
+
+    .mobile-poem .stanza.quote::before {
+      width: 3px;
+      top: 0.12em;
+      bottom: 0.12em;
+    }
+
+    .mobile-poem .quote-source {
+      margin-top: 9px;
+      font-size: 0.58em;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+
+    .mobile-poem .show-title {
+      font-size: 0.9em;
+      line-height: 1.35;
+    }
+
+    .mobile-poem .wordplay-note {
+      margin-top: 5px;
+      font-size: 0.53em;
+      line-height: 1.35;
+      white-space: nowrap;
+    }
+
+    .mobile-poem .stanza.before-quote { margin-bottom: 18px; }
+    .mobile-poem .stanza.quote.mid-quote { margin-bottom: 20px; }
+
+    .mobile-poem .closing {
+      margin-top: 0;
+      line-height: 1.44;
+      white-space: normal;
+    }
+
+    .mobile-poem .signature { margin-top: 40px; }
+    .mobile-poem .signature-rule { width: 72%; max-width: 270px; height: 3px; }
+    .mobile-poem .signature-text { margin-top: 13px; font-size: 18px; }
+  }
+
+  @media (max-width: 360px) {
+    .canvas { padding-left: 16px; padding-right: 16px; }
+    .mobile-poem { font-size: 18px; }
+    .mobile-poem .quote-source { font-size: 0.56em; }
+    .mobile-poem .wordplay-note { font-size: 0.50em; }
+  }
+</style>
+</head>
+<body>
+  <main class="canvas">
+    <div class="fit-shell desktop-shell" id="fit-shell">
+      <div class="poem" id="poem">
+        <div class="stanza">변한 것 같은데 또 변한 건 없는 것 같다.
+예전엔 한국어를 못 했고 지금은 할 수 있지만,
+어쩌면 그때도 늘 한국어로 가득했는지도 몰라.</div>
+
+        <div class="stanza"><span lang="ja">無茶苦茶で滅茶苦茶だったけど</span>
+중간중간엔 무차고차였는데
+지금은 <span lang="ja">また メ</span>차<span lang="ja">ク</span>차<span lang="ja">になっただけ</span>.
+<span class="show-title">Hometown Cha-Cha-Cha</span><div class="wordplay-note">차(茶) 🍵 / 차(車) 🚗 · <a href="https://www.youtube.com/watch?v=z66fazyp3-M" target="_blank" rel="noopener noreferrer">갯마을 차차차 예고편</a></div></div>
+
+        <div class="stanza quote">“중요한 것은 모든 면들을
+함께 볼 수 있는
+따뜻한 시선입니다.”<div class="quote-source">— 정진호, <a href="https://bir.co.kr/book/101888/" target="_blank" rel="noopener noreferrer">『벽』</a> (비룡소, 2016)</div></div>
+
+        <div class="stanza before-quote">마치 그렇네.
+이걸 어떻게 설명해야 되나요?</div>
+
+        <div class="stanza quote mid-quote">“추상적인 마음을 어떻게 구체적인 언어로 담아?”<div class="quote-source">— 변은아, <a href="https://tv.jtbc.co.kr/wearealltryinghere" target="_blank" rel="noopener noreferrer">『모두가 자신의 무가치함과 싸우고 있다』</a> 8회</div></div>
+
+        <div class="stanza">그냥 느낌으로 할 수밖에 없네.</div>
+
+        <div class="stanza">그래, 따뜻해.
+지금까지 몇 번이나 들었는지 모르겠는데
+그냥 쭉 들어왔어.</div>
+
+        <div class="stanza">그래서 따뜻하고 오래된 친구를
+만나는 것처럼 따뜻해.
+“따뜻하다”라는 단어를 들으면
+진짜 따땃하게 느껴져.</div>
+
+        <div class="closing">그리고 그냥 따뜻하게 보자.
+뜨겁게 보지 말고.</div>
+
+        <div class="signature">
+          <div class="signature-rule"></div>
+          <div class="signature-text">따땃함@lacma</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-poem" aria-label="따땃함@lacma">
+      <div class="stanza">
+        <span class="line">변한 것 같은데 또 변한 건 없는 것 같다.</span>
+        <span class="line">예전엔 한국어를 못 했고</span>
+        <span class="line">지금은 할 수 있지만,</span>
+        <span class="line">어쩌면 그때도 늘 한국어로</span>
+        <span class="line">가득했는지도 몰라.</span>
+      </div>
+
+      <div class="stanza">
+        <span class="line" lang="ja">無茶苦茶で滅茶苦茶だったけど</span>
+        <span class="line">중간중간엔 무차고차였는데</span>
+        <span class="line">지금은 <span lang="ja">また メ</span>차<span lang="ja">ク</span>차<span lang="ja">になっただけ</span>.</span>
+        <span class="line show-title">Hometown Cha-Cha-Cha</span>
+        <div class="wordplay-note">차(茶) 🍵 / 차(車) 🚗 · <a href="https://www.youtube.com/watch?v=z66fazyp3-M" target="_blank" rel="noopener noreferrer">갯마을 차차차 예고편</a></div>
+      </div>
+
+      <div class="stanza quote">
+        <span class="line">“중요한 것은 모든 면들을</span>
+        <span class="line">함께 볼 수 있는</span>
+        <span class="line">따뜻한 시선입니다.”</span>
+        <div class="quote-source">— 정진호, <a href="https://bir.co.kr/book/101888/" target="_blank" rel="noopener noreferrer">『벽』</a> (비룡소, 2016)</div>
+      </div>
+
+      <div class="stanza before-quote">
+        <span class="line">마치 그렇네.</span>
+        <span class="line">이걸 어떻게 설명해야 되나요?</span>
+      </div>
+
+      <div class="stanza quote mid-quote">
+        <span class="line">“추상적인 마음을 어떻게</span>
+        <span class="line">구체적인 언어로 담아?”</span>
+        <div class="quote-source">— 변은아, <a href="https://tv.jtbc.co.kr/wearealltryinghere" target="_blank" rel="noopener noreferrer">『모두가 자신의 무가치함과 싸우고 있다』</a> 8회</div>
+      </div>
+
+      <div class="stanza">
+        <span class="line">그냥 느낌으로 할 수밖에 없네.</span>
+      </div>
+
+      <div class="stanza">
+        <span class="line">그래, 따뜻해.</span>
+        <span class="line">지금까지 몇 번이나</span>
+        <span class="line">들었는지 모르겠는데</span>
+        <span class="line">그냥 쭉 들어왔어.</span>
+      </div>
+
+      <div class="stanza">
+        <span class="line">그래서 따뜻하고 오래된 친구를</span>
+        <span class="line">만나는 것처럼 따뜻해.</span>
+        <span class="line">“따뜻하다”라는 단어를 들으면</span>
+        <span class="line">진짜 따땃하게 느껴져.</span>
+      </div>
+
+      <div class="closing">
+        <span class="line">그리고 그냥 따뜻하게 보자.</span>
+        <span class="line">뜨겁게 보지 말고.</span>
+      </div>
+
+      <div class="signature">
+        <div class="signature-rule"></div>
+        <div class="signature-text">따땃함@lacma</div>
+      </div>
+    </div>
+  </main>
+
+<script>
+  function fitPoem() {
+    const shell = document.getElementById('fit-shell');
+    const poem = document.getElementById('poem');
+    const canvas = document.querySelector('.canvas');
+
+    if (window.matchMedia('(max-width: 700px)').matches) return;
+
+    const style = getComputedStyle(canvas);
+    const pad = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    const available = Math.max(1, window.innerWidth - pad);
+    const designWidth = 1120;
+    const scale = Math.min(1, available / designWidth);
+
+    poem.style.transform = `scale(${scale})`;
+    shell.style.width = `${designWidth * scale}px`;
+    shell.style.height = `${poem.scrollHeight * scale}px`;
+  }
+
+  window.addEventListener('load', fitPoem);
+  window.addEventListener('resize', fitPoem);
+</script>
+</body>
+</html>
