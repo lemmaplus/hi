@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Pilemma</title>
+
+  <!-- Alegreya SC + Afacad -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Afacad:ital,wght@0,400;0,500;0,600;1,400&family=Alegreya+SC:wght@500;600;700&family=Noto+Serif+KR:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: #ffffff;
+      color: #151515;
+      font-family: "Afacad", sans-serif;
+    }
+
+    .page {
+      width: min(88vw, 650px);
+      margin: 42px auto 110px;
+    }
+
+    /* ---------- opening ---------- */
+
+    .opening {
+      min-height: auto;
+    }
+
+    .word {
+      margin: 28px 0 4px;
+      font-family: "Alegreya SC", serif;
+      font-size: clamp(3rem, 7vw, 4.6rem);
+      font-weight: 600;
+      line-height: 0.95;
+      letter-spacing: 0.012em;
+    }
+
+    .image-wrap {
+      display: flex;
+      justify-content: center;
+    }
+
+    .image-stack {
+      position: relative;
+      width: 100%;
+    }
+
+    .hero {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .hero-color {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      pointer-events: none;
+    }
+
+    .image-stack.is-hovered .hero-color,
+    .image-stack.show-color .hero-color {
+      opacity: 1;
+    }
+
+    /* ---------- dictionary ---------- */
+
+    .dictionary {
+      max-width: 620px;
+      padding-top: 18px;
+    }
+
+    .meta {
+      margin-bottom: 0;
+      font-size: 1.38rem;
+      line-height: 1.28;
+      color: #3f3f3f;
+      padding-left: 6px;
+    }
+
+    .meta .noun {
+      margin-left: 8px;
+      font-style: italic;
+    }
+
+    .ipa {
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+      font-size: 0.88em;
+    }
+
+    .pi-symbol {
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+      font-size: 0.86em;
+      font-weight: 520;
+    }
+
+    .definitions {
+      margin: 0;
+      padding-left: 1.7rem;
+      font-size: 1.42rem;
+      line-height: 1.38;
+    }
+
+    .definitions li {
+      padding-left: 0.35rem;
+      margin-bottom: 6px;
+    }
+
+    .dictionary a {
+      color: #c96f24;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .dictionary a:hover {
+      opacity: 0.65;
+    }
+
+    .dictionary a.noticed-link {
+      color: #777;
+      text-decoration-color: #bbb;
+    }
+
+    .dictionary a.noticed-link:hover {
+      color: #444;
+      opacity: 1;
+    }
+
+    /* Korean */
+    .ko {
+      font-family: "Noto Serif KR", serif;
+      font-weight: 500;
+      font-size: 0.84em;
+      letter-spacing: -0.015em;
+    }
+
+    /* ---------- wandering circle ---------- */
+
+    .wandering-circle {
+      position: fixed;
+
+      left: 30px;
+      top: 30px;
+
+      width: 64px;
+      height: 64px;
+
+      padding: 0;
+      border: 0;
+
+      background: #151515;
+      border-radius: 50%;
+
+      z-index: 1000;
+
+      cursor: pointer;
+
+      transition:
+        transform 0.6s cubic-bezier(.2, .8, .2, 1),
+        opacity 0.6s ease;
+
+      appearance: none;
+      -webkit-appearance: none;
+
+      touch-action: none;
+      user-select: none;
+    }
+
+    .wandering-circle.hovered {
+      transform: scale(1.7);
+      opacity: 0.25;
+    }
+
+    .wandering-circle.dragging {
+      cursor: grabbing;
+    }
+
+    .wandering-circle:focus-visible {
+      outline: 2px solid #c96f24;
+      outline-offset: 6px;
+    }
+
+    /* ---------- mobile ---------- */
+
+    @media (max-width: 600px) {
+      .page {
+        width: 90vw;
+        margin-top: 26px;
+        margin-bottom: 70px;
+      }
+
+      .dictionary {
+        padding-top: 28px;
+      }
+
+      .word {
+        margin-top: 30px;
+        margin-bottom: 3px;
+        font-size: clamp(2.8rem, 14vw, 4rem);
+      }
+
+      .meta {
+        font-size: 1.28rem;
+      }
+
+      .definitions {
+        font-size: 1.3rem;
+        padding-left: 1.55rem;
+      }
+
+      .wandering-circle {
+        width: 54px;
+        height: 54px;
+      }
+    }
+
+    /* Don't animate around the screen for users
+       who prefer reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .wandering-circle {
+        left: 75%;
+        top: 60%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="page">
+
+    <!-- First screen: photograph, then the word -->
+    <section class="opening">
+
+      <div class="image-wrap">
+
+        <div
+          class="image-stack"
+          id="heroImage"
+        >
+
+          <img
+            src="hello.jpg"
+            alt="Pilemma"
+            class="hero hero-bw"
+          >
+
+          <img
+            src="world.jpg"
+            alt=""
+            class="hero hero-color"
+            aria-hidden="true"
+          >
+
+        </div>
+
+      </div>
+
+      <h1 class="word">pilemma</h1>
+
+      <div class="meta">
+
+        <span class="ipa">
+          /piːˈlɛmə/
+        </span>
+
+        <span class="noun">
+          noun
+        </span>
+
+      </div>
+
+    </section>
+
+    <!-- Scroll down for the dictionary entry -->
+
+    <section class="dictionary">
+
+      <ol class="definitions">
+
+        <li>
+          a pile of
+          <a
+            href="https://en.wiktionary.org/wiki/lemma"
+            target="_blank"
+            rel="noopener noreferrer"
+          >lemmas</a>
+          for things
+          noticed,
+          drawn, or thought about.
+        </li>
+
+        <li>
+          a.k.a.
+          <strong>
+            <span class="pi-symbol">π</span>-lemma
+          </strong>:
+          an irrational version of a dilemma.
+        </li>
+
+        <li>
+          cf.
+          <span class="ko">필름</span>
+          (<em>pilleum</em>),
+          “film.”
+        </li>
+
+      </ol>
+
+    </section>
+
+  </main>
+
+  <!-- Wandering circle -->
+  <!-- It does not link anywhere yet -->
+
+  <button
+    class="wandering-circle"
+    id="wanderingCircle"
+    type="button"
+    aria-label="Wandering circle"
+  ></button>
+
+  <script>
+
+    /* ---------------------------------
+       Image interaction
+       Desktop only: hover fades to color.
+       Leaving the tab/window always resets
+       the image to hello.jpg.
+    --------------------------------- */
+
+    const image =
+      document.getElementById("heroImage");
+
+    const imageCanHover =
+      window.matchMedia(
+        "(hover: hover) and (pointer: fine)"
+      ).matches;
+
+    function resetHeroImage() {
+      image.classList.remove("is-hovered");
+    }
+
+    if (imageCanHover) {
+
+      image.addEventListener(
+        "pointerenter",
+        function () {
+          image.classList.add("is-hovered");
+        }
+      );
+
+      image.addEventListener(
+        "pointerleave",
+        resetHeroImage
+      );
+
+      /*
+        Safari can preserve a stale :hover-like visual
+        state when a tab or window loses focus.
+        Explicitly reset it whenever the page is hidden
+        or the browser window loses focus.
+      */
+
+      document.addEventListener(
+        "visibilitychange",
+        function () {
+          if (document.hidden) {
+            resetHeroImage();
+          }
+        }
+      );
+
+      window.addEventListener(
+        "blur",
+        resetHeroImage
+      );
+
+      window.addEventListener(
+        "pageshow",
+        resetHeroImage
+      );
+
+    } else {
+
+      /*
+        Mobile / touch:
+        tap once to show world.jpg,
+        tap again to return to hello.jpg.
+      */
+
+      image.addEventListener(
+        "click",
+        function () {
+          image.classList.toggle("show-color");
+        }
+      );
+    }
+
+
+    /* ---------------------------------
+       Wandering circle
+    --------------------------------- */
+
+    const circle =
+      document.getElementById(
+        "wanderingCircle"
+      );
+
+    const circleDestination =
+      "https://www.pilemma.org/lacma";
+
+    let circleX = 30;
+    let circleY = 30;
+
+    const circleSpeed = Math.hypot(12, 8);
+    let circleVX = 12;
+    let circleVY = 8;
+
+    let circlePaused = false;
+    let isDragging = false;
+
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+
+    let pointerStartX = 0;
+    let pointerStartY = 0;
+    let pointerMoved = false;
+
+    const dragThreshold = 8;
+
+    let previousCircleTime =
+      performance.now();
+
+    const prefersReducedMotion =
+      window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+
+    const circleCanHover =
+      window.matchMedia(
+        "(hover: hover) and (pointer: fine)"
+      ).matches;
+
+
+    /* ------------------------------
+       Shared helpers
+    ------------------------------ */
+
+    function randomizeCircleDirection() {
+      const angle =
+        Math.random() * Math.PI * 2;
+
+      circleVX =
+        circleSpeed * Math.cos(angle);
+
+      circleVY =
+        circleSpeed * Math.sin(angle);
+    }
+
+    function setCirclePosition(x, y) {
+      const size =
+        circle.offsetWidth;
+
+      const maxX =
+        window.innerWidth - size;
+
+      const maxY =
+        window.innerHeight - size;
+
+      circleX = Math.max(
+        0,
+        Math.min(maxX, x)
+      );
+
+      circleY = Math.max(
+        0,
+        Math.min(maxY, y)
+      );
+
+      circle.style.left =
+        `${circleX}px`;
+
+      circle.style.top =
+        `${circleY}px`;
+    }
+
+
+    /* =================================================
+       DESKTOP
+
+       Short hover:
+       pause while the pointer is over the circle,
+       then continue when the pointer leaves.
+
+       Long hover (3 seconds):
+       toggle a "latched" pause.
+
+       First 3-second hover:
+       the circle stays stopped even after the pointer leaves.
+
+       Next 3-second hover:
+       the circle is released and starts moving again.
+
+       Dragging:
+       move the circle by hand; the next moving direction
+       is randomized, as before.
+    ================================================= */
+
+    if (circleCanHover) {
+
+      let desktopLatchedPaused = false;
+      let desktopHoverTimer = null;
+
+      let desktopPointerStartX = 0;
+      let desktopPointerStartY = 0;
+      let desktopDidDrag = false;
+
+      const desktopLongHoverDelay = 3000;
+
+
+      function clearDesktopHoverTimer() {
+        if (desktopHoverTimer !== null) {
+          clearTimeout(desktopHoverTimer);
+          desktopHoverTimer = null;
+        }
+      }
+
+
+      function startDesktopHoverTimer() {
+
+        clearDesktopHoverTimer();
+
+        desktopHoverTimer =
+          setTimeout(
+            function () {
+
+              desktopHoverTimer = null;
+
+              if (isDragging) return;
+
+              /*
+                Long hover toggles the persistent state.
+              */
+
+              if (desktopLatchedPaused) {
+
+                /*
+                  Second long hover:
+                  unlock it, but keep it paused
+                  until the pointer actually leaves.
+                */
+                desktopLatchedPaused = false;
+                circlePaused = true;
+
+                circle.classList.add(
+                  "hovered"
+                );
+
+              } else {
+
+                /* first long hover: keep it stopped */
+                desktopLatchedPaused = true;
+                circlePaused = true;
+
+                circle.classList.add(
+                  "hovered"
+                );
+              }
+            },
+            desktopLongHoverDelay
+          );
+      }
+
+
+      function pauseCircleDesktop() {
+
+        circlePaused = true;
+
+        circle.classList.add(
+          "hovered"
+        );
+
+        startDesktopHoverTimer();
+      }
+
+
+      function leaveCircleDesktop() {
+
+        clearDesktopHoverTimer();
+
+        circle.classList.remove(
+          "hovered"
+        );
+
+        if (
+          isDragging ||
+          desktopLatchedPaused
+        ) {
+          circlePaused = true;
+          return;
+        }
+
+        circlePaused = false;
+
+        previousCircleTime =
+          performance.now();
+      }
+
+
+      circle.addEventListener(
+        "pointerenter",
+        pauseCircleDesktop
+      );
+
+      circle.addEventListener(
+        "pointerleave",
+        leaveCircleDesktop
+      );
+
+
+      circle.addEventListener(
+        "pointerdown",
+        function (event) {
+
+          clearDesktopHoverTimer();
+
+          desktopPointerStartX =
+            event.clientX;
+
+          desktopPointerStartY =
+            event.clientY;
+
+          desktopDidDrag = false;
+
+          isDragging = true;
+          circlePaused = true;
+
+          circle.classList.add(
+            "hovered"
+          );
+
+          circle.classList.add(
+            "dragging"
+          );
+
+          circle.setPointerCapture(
+            event.pointerId
+          );
+
+          dragOffsetX =
+            event.clientX - circleX;
+
+          dragOffsetY =
+            event.clientY - circleY;
+        }
+      );
+
+
+      circle.addEventListener(
+        "pointermove",
+        function (event) {
+
+          if (!isDragging) return;
+
+          const desktopDX =
+            event.clientX -
+            desktopPointerStartX;
+
+          const desktopDY =
+            event.clientY -
+            desktopPointerStartY;
+
+          if (
+            Math.hypot(
+              desktopDX,
+              desktopDY
+            ) > dragThreshold
+          ) {
+            desktopDidDrag = true;
+          }
+
+          setCirclePosition(
+            event.clientX - dragOffsetX,
+            event.clientY - dragOffsetY
+          );
+        }
+      );
+
+
+      circle.addEventListener(
+        "pointerup",
+        function (event) {
+
+          if (!isDragging) return;
+
+          isDragging = false;
+
+          circle.classList.remove(
+            "dragging"
+          );
+
+          if (
+            circle.hasPointerCapture(
+              event.pointerId
+            )
+          ) {
+            circle.releasePointerCapture(
+              event.pointerId
+            );
+          }
+
+          /*
+            Desktop:
+            a click opens the linked page.
+            A real drag keeps the circle on this page.
+          */
+          if (!desktopDidDrag) {
+            window.location.href =
+              circleDestination;
+            return;
+          }
+
+          /*
+            Every time the circle is moved by hand,
+            its next journey gets a new direction.
+          */
+          randomizeCircleDirection();
+
+          if (circle.matches(":hover")) {
+
+            circlePaused = true;
+
+            circle.classList.add(
+              "hovered"
+            );
+
+            /*
+              Once dragging ends, hovering begins again.
+              Holding for another 3 seconds can therefore
+              toggle the latched state.
+            */
+            startDesktopHoverTimer();
+
+          } else {
+
+            circle.classList.remove(
+              "hovered"
+            );
+
+            if (desktopLatchedPaused) {
+              circlePaused = true;
+            } else {
+              circlePaused = false;
+
+              previousCircleTime =
+                performance.now();
+            }
+          }
+        }
+      );
+
+
+      circle.addEventListener(
+        "pointercancel",
+        function () {
+
+          clearDesktopHoverTimer();
+
+          isDragging = false;
+
+          circle.classList.remove(
+            "dragging"
+          );
+
+          circle.classList.remove(
+            "hovered"
+          );
+
+          circlePaused =
+            desktopLatchedPaused;
+
+          previousCircleTime =
+            performance.now();
+        }
+      );
+
+
+      /*
+        Keyboard focus still pauses the circle,
+        but it does not count as a 3-second hover.
+      */
+
+      circle.addEventListener(
+        "focus",
+        function () {
+          circlePaused = true;
+          circle.classList.add(
+            "hovered"
+          );
+        }
+      );
+
+      circle.addEventListener(
+        "blur",
+        function () {
+
+          clearDesktopHoverTimer();
+
+          circle.classList.remove(
+            "hovered"
+          );
+
+          if (!desktopLatchedPaused) {
+            circlePaused = false;
+
+            previousCircleTime =
+              performance.now();
+          }
+        }
+      );
+    }
+
+
+    /* =================================================
+       MOBILE / TOUCH
+
+       0  moving small
+          tap
+       1  paused small
+          tap
+       2  paused big + draggable
+          tap
+       3  paused small
+          tap
+       0  moving small, with a new random direction
+
+       Dragging only works in state 2.
+       Releasing after a drag leaves the ball big and still.
+    ================================================= */
+
+    let mobileCircleState = 0;
+
+    function applyMobileCircleState() {
+
+      if (mobileCircleState === 0) {
+        circlePaused = false;
+        circle.classList.remove("hovered");
+      }
+
+      if (mobileCircleState === 1) {
+        circlePaused = true;
+        circle.classList.remove("hovered");
+      }
+
+      if (mobileCircleState === 2) {
+        circlePaused = true;
+        circle.classList.add("hovered");
+      }
+
+      if (mobileCircleState === 3) {
+        circlePaused = true;
+        circle.classList.remove("hovered");
+      }
+
+      previousCircleTime =
+        performance.now();
+    }
+
+    function advanceMobileCircleState() {
+
+      if (mobileCircleState === 0) {
+        mobileCircleState = 1;
+      }
+
+      else if (mobileCircleState === 1) {
+        mobileCircleState = 2;
+      }
+
+      else if (mobileCircleState === 2) {
+        mobileCircleState = 3;
+      }
+
+      else {
+        mobileCircleState = 0;
+        randomizeCircleDirection();
+      }
+
+      applyMobileCircleState();
+    }
+
+
+    if (!circleCanHover) {
+
+      applyMobileCircleState();
+
+      circle.addEventListener(
+        "pointerdown",
+        function (event) {
+
+          pointerStartX = event.clientX;
+          pointerStartY = event.clientY;
+          pointerMoved = false;
+
+          circlePaused = true;
+
+          if (mobileCircleState === 2) {
+
+            isDragging = false;
+
+            dragOffsetX =
+              event.clientX - circleX;
+
+            dragOffsetY =
+              event.clientY - circleY;
+          }
+
+          circle.setPointerCapture(
+            event.pointerId
+          );
+        }
+      );
+
+
+      circle.addEventListener(
+        "pointermove",
+        function (event) {
+
+          const dx =
+            event.clientX - pointerStartX;
+
+          const dy =
+            event.clientY - pointerStartY;
+
+          const distance =
+            Math.hypot(dx, dy);
+
+          if (
+            distance > dragThreshold
+          ) {
+            pointerMoved = true;
+          }
+
+          if (
+            mobileCircleState !== 2 ||
+            !pointerMoved
+          ) {
+            return;
+          }
+
+          isDragging = true;
+
+          circle.classList.add(
+            "dragging"
+          );
+
+          setCirclePosition(
+            event.clientX - dragOffsetX,
+            event.clientY - dragOffsetY
+          );
+        }
+      );
+
+
+      circle.addEventListener(
+        "pointerup",
+        function (event) {
+
+          if (
+            circle.hasPointerCapture(
+              event.pointerId
+            )
+          ) {
+            circle.releasePointerCapture(
+              event.pointerId
+            );
+          }
+
+          if (isDragging) {
+
+            isDragging = false;
+
+            circle.classList.remove(
+              "dragging"
+            );
+
+            /*
+              Mobile shortcut:
+              if the enlarged ball is released against
+              any edge of the viewport, open the linked page.
+              We trigger on release, not while dragging,
+              so brushing an edge does not navigate by accident.
+            */
+
+            const size =
+              circle.offsetWidth;
+
+            const maxX =
+              window.innerWidth - size;
+
+            const maxY =
+              window.innerHeight - size;
+
+            const atEdge =
+              circleX <= 0 ||
+              circleX >= maxX ||
+              circleY <= 0 ||
+              circleY >= maxY;
+
+            if (atEdge) {
+              window.location.href =
+                circleDestination;
+              return;
+            }
+
+            mobileCircleState = 2;
+            applyMobileCircleState();
+
+            return;
+          }
+
+          if (pointerMoved) {
+
+            if (mobileCircleState === 0) {
+              circlePaused = false;
+              previousCircleTime =
+                performance.now();
+            } else {
+              applyMobileCircleState();
+            }
+
+            return;
+          }
+
+          advanceMobileCircleState();
+        }
+      );
+
+
+      circle.addEventListener(
+        "pointercancel",
+        function () {
+
+          isDragging = false;
+          pointerMoved = false;
+
+          circle.classList.remove(
+            "dragging"
+          );
+
+          applyMobileCircleState();
+        }
+      );
+    }
+
+
+    /* ------------------------------
+       Wandering animation
+    ------------------------------ */
+
+    function animateCircle(time) {
+
+      const delta = Math.min(
+        (time - previousCircleTime) / 1000,
+        0.05
+      );
+
+      previousCircleTime = time;
+
+
+      if (
+        !circlePaused &&
+        !isDragging &&
+        !prefersReducedMotion
+      ) {
+
+        const size =
+          circle.offsetWidth;
+
+        const maxX =
+          window.innerWidth - size;
+
+        const maxY =
+          window.innerHeight - size;
+
+
+        circleX += circleVX * delta;
+        circleY += circleVY * delta;
+
+
+        if (circleX <= 0) {
+          circleX = 0;
+          circleVX =
+            Math.abs(circleVX);
+        }
+
+        if (circleX >= maxX) {
+          circleX = maxX;
+          circleVX =
+            -Math.abs(circleVX);
+        }
+
+        if (circleY <= 0) {
+          circleY = 0;
+          circleVY =
+            Math.abs(circleVY);
+        }
+
+        if (circleY >= maxY) {
+          circleY = maxY;
+          circleVY =
+            -Math.abs(circleVY);
+        }
+
+
+        circle.style.left =
+          `${circleX}px`;
+
+        circle.style.top =
+          `${circleY}px`;
+      }
+
+
+      requestAnimationFrame(
+        animateCircle
+      );
+    }
+
+
+    requestAnimationFrame(
+      animateCircle
+    );
+
+  </script>
+
+</body>
+</html>
